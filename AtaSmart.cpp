@@ -72,6 +72,7 @@ CAtaSmart::~CAtaSmart()
 	DeinitializeJMB39X(&hJMB39X);
 	DeinitializeJMS586_20(&hJMS586_20);
 	DeinitializeJMS586_40(&hJMS586_40);
+	DeinitializeJMS59X(&hJMS59X);
 #endif
 
 	safeCloseHandle(hMutexJMicron);
@@ -333,6 +334,13 @@ DWORD CAtaSmart::UpdateSmartInfo(DWORD i)
 			}
 			vars[i].DiskStatus = CheckDiskStatus(i);
 			break;
+		case CMD_TYPE_JMS59X:
+			if (!GetSmartInfoJMS59X(vars[i].ScsiBus, vars[i].ScsiPort, &(vars[i])))
+			{
+				return SMART_STATUS_NO_CHANGE;
+			}
+			vars[i].DiskStatus = CheckDiskStatus(i);
+			break;
 #endif
 		default:
 			return SMART_STATUS_NO_CHANGE;
@@ -400,6 +408,9 @@ BOOL CAtaSmart::UpdateIdInfo(DWORD i)
 		break;
 	case CMD_TYPE_JMS586_20:
 		flag = DoIdentifyDeviceJMS586_20(vars[i].ScsiBus, vars[i].ScsiPort, &(vars[i].IdentifyDevice));
+		break;
+	case CMD_TYPE_JMS59X:
+		flag = DoIdentifyDeviceJMS59X(vars[i].ScsiBus, vars[i].ScsiPort, &(vars[i].IdentifyDevice));
 		break;
 #endif
 	default:
@@ -536,6 +547,7 @@ BOOL CAtaSmart::SendAtaCommand(DWORD i, BYTE main, BYTE sub, BYTE param)
 	case CMD_TYPE_JMB39X:
 	case CMD_TYPE_JMS586_40:
 	case CMD_TYPE_JMS586_20:
+	case CMD_TYPE_JMS59X:
 	default:
 		return FALSE;
 		break;
@@ -1525,6 +1537,33 @@ VOID CAtaSmart::Init(BOOL useWmi, BOOL advancedDiskSearch, PBOOL flagChangeDisk,
 					for (int i = 0; i < count; i++)
 					{
 						AddDiskJMB39X(i);
+					}
+				}
+			}
+
+			if (FlagUsbJMS59X)
+			{
+				DebugPrint(L"JMS59X");
+
+				if (InitializeJMS59X(&hJMS59X))
+				{
+					int count = 0;
+					count = pGetControllerCountJMS59X();
+
+					cstr.Format(L"ControllerCount: %d", count);
+					DebugPrint(cstr);
+
+					int raidCount = 0;
+					raidCount = pGetRaidCountJMS59X();
+					cstr.Format(L"RaidCount: %d", raidCount);
+					DebugPrint(cstr);
+
+					for (int i = 0; i < count; i++)
+					{
+						if (raidCount > 0)
+						{
+							AddDiskJMS59X(i);
+						}
 					}
 				}
 			}
@@ -2904,6 +2943,18 @@ BOOL CAtaSmart::AddDisk(INT physicalDriveId, INT scsiPort, INT scsiTargetId, INT
 		else if (asi.IdentifyDevice.A.SerialAtaCapabilities & 0x0004) { asi.MaxTransferMode = L"SATA/300"; }
 		else if (asi.IdentifyDevice.A.SerialAtaCapabilities & 0x0008) { asi.MaxTransferMode = L"SATA/600"; }
 	}
+	else if (commandType == COMMAND_TYPE::CMD_TYPE_JMS59X)
+	{
+		asi.Major = 0;
+		asi.IsSmartSupported = TRUE;
+		asi.Interface = L"USB (JMicron JMS59X)";
+		asi.CurrentTransferMode = L"---";
+		asi.MaxTransferMode = L"----";
+
+		if (asi.IdentifyDevice.A.SerialAtaCapabilities & 0x0002) { asi.MaxTransferMode = L"SATA/150"; }
+		else if (asi.IdentifyDevice.A.SerialAtaCapabilities & 0x0004) { asi.MaxTransferMode = L"SATA/300"; }
+		else if (asi.IdentifyDevice.A.SerialAtaCapabilities & 0x0008) { asi.MaxTransferMode = L"SATA/600"; }
+	}
 #endif
 	else {
 		// +AMD_RC2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -3076,7 +3127,7 @@ BOOL CAtaSmart::AddDisk(INT physicalDriveId, INT scsiPort, INT scsiTargetId, INT
 		asi.IsLba48Supported = TRUE;
 		asi.DiskSizeChs = 0;
 	}
-	else if (commandType == COMMAND_TYPE::CMD_TYPE_JMS56X || commandType == COMMAND_TYPE::CMD_TYPE_JMB39X || commandType == COMMAND_TYPE::CMD_TYPE_JMS586_20 || commandType == COMMAND_TYPE::CMD_TYPE_JMS586_40)
+	else if (commandType == COMMAND_TYPE::CMD_TYPE_JMS56X || commandType == COMMAND_TYPE::CMD_TYPE_JMB39X || commandType == COMMAND_TYPE::CMD_TYPE_JMS586_20 || commandType == COMMAND_TYPE::CMD_TYPE_JMS586_40 || commandType == COMMAND_TYPE::CMD_TYPE_JMS59X)
 	{
 		asi.IsLba48Supported = TRUE;
 		asi.DiskSizeChs = 0;
@@ -3578,6 +3629,18 @@ BOOL CAtaSmart::AddDisk(INT physicalDriveId, INT scsiPort, INT scsiTargetId, INT
 			break;
 		case CMD_TYPE_JMS586_20:
 			if (GetSmartInfoJMS586_20(scsiBus, scsiPort, &asi))
+			{
+				CheckSsdSupport(asi);
+				// GetSmartInfoJMicronUsbRaid(scsiBus, scsiPort, &asiCheck);
+				// if (CheckSmartAttributeCorrect(&asi, &asiCheck)){}
+				asi.IsSmartSupported = TRUE;
+				asi.IsSmartCorrect = TRUE;
+				asi.IsThresholdCorrect = TRUE;
+				asi.IsSmartEnabled = TRUE;
+			}
+			break;
+		case CMD_TYPE_JMS59X:
+			if (GetSmartInfoJMS59X(scsiBus, scsiPort, &asi))
 			{
 				CheckSsdSupport(asi);
 				// GetSmartInfoJMicronUsbRaid(scsiBus, scsiPort, &asiCheck);
@@ -11528,6 +11591,58 @@ BOOL CAtaSmart::ControllerSerialNum2IdJMS586_40(BYTE index, BYTE* cid)
 
 	//	return NULL;
 	return pControllerSerialNum2IdJMS586_40(index, cid);
+}
+
+BOOL CAtaSmart::AddDiskJMS59X(INT index)
+{
+	if (!hJMS59X) { return FALSE; }
+	IDENTIFY_DEVICE identify = { 0 };
+
+	for (int i = 0; i < 5 /*MAX_DISK_IN_CONTROLLER*/; i++)
+	{
+		if (DoIdentifyDeviceJMS59X(index, i, &identify))
+		{
+			AddDisk(-1, i, NULL, index, 0xA0, CMD_TYPE_JMS59X, &identify);
+		}
+	}
+
+	return TRUE;
+}
+
+BOOL CAtaSmart::DoIdentifyDeviceJMS59X(INT index, BYTE port, IDENTIFY_DEVICE* identify)
+{
+	if (!hJMS59X) { return FALSE; }
+	CString cstr;
+	cstr.Format(L"GetIdentifyInfoFx: index %d, port %d", index, port);
+	DebugPrint(cstr);
+
+	return pGetIdentifyInfoJMS59X(index, port, (UNION_IDENTIFY_DEVICE*)identify);
+}
+
+BOOL CAtaSmart::GetSmartInfoJMS59X(INT index, BYTE port, ATA_SMART_INFO* asi)
+{
+	if (!hJMS59X) { return FALSE; }
+	CString cstr;
+	cstr.Format(L"GetSmartInfoFx: index %d, port %d", index, port);
+	DebugPrint(cstr);
+
+	pGetSmartInfoJMS59X(index, port, (UNION_SMART_ATTRIBUTE*)&(asi->SmartReadData), (UNION_SMART_THRESHOLD*)&(asi->SmartReadThreshold));
+	FillSmartData(asi);
+	FillSmartThreshold(asi);
+
+	if (asi->AttributeCount == 0)
+	{
+		Sleep(1000);
+		pGetSmartInfoJMS59X(index, port, (UNION_SMART_ATTRIBUTE*)&(asi->SmartReadData), (UNION_SMART_THRESHOLD*)&(asi->SmartReadThreshold));
+		FillSmartData(asi);
+		FillSmartThreshold(asi);
+	}
+
+	if (asi->AttributeCount > 0)
+	{
+		return TRUE;
+	}
+	return FALSE;
 }
 
 #endif

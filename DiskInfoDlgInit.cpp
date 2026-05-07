@@ -187,6 +187,7 @@ BOOL CDiskInfoDlg::OnInitDialog()
 	m_Ata.FlagUsbJMB39X = !GetPrivateProfileInt(_T("Setting"), _T("JMB39X"), 0, m_Ini); // Default Off
 	m_Ata.FlagUsbJMS586_20 = !GetPrivateProfileInt(_T("Setting"), _T("JMS586_20"), 0, m_Ini); // Default Off
 	m_Ata.FlagUsbJMS586_40 = !GetPrivateProfileInt(_T("Setting"), _T("JMS586_40"), 0, m_Ini); // Default Off
+	m_Ata.FlagUsbJMS59X = !GetPrivateProfileInt(_T("Setting"), _T("JMS59X"), 0, m_Ini); // Default Off
 #endif
 
 	OnUsbSat();
@@ -211,6 +212,7 @@ BOOL CDiskInfoDlg::OnInitDialog()
 	OnUsbJMB39X();
 	OnUsbJMS586_20();
 	OnUsbJMS586_40();
+	OnUsbJMS59X();
 #endif
 
 	DebugPrint(_T("InitAta"));

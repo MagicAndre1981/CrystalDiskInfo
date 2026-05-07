@@ -147,8 +147,8 @@
 	#endif
 #endif
 
-#define PRODUCT_VERSION				L"9.8.0"
-#define PRODUCT_RELEASE				L"2026/02/15"
+#define PRODUCT_VERSION				L"9.9.0"
+#define PRODUCT_RELEASE				L"2026/05/07"
 #define PRODUCT_COPY_YEAR			L"2008-2025"
 #define PRODUCT_LICENSE				L"MIT License"
 
@@ -277,6 +277,7 @@
 #define CERTNAME_JMB39X				L"Open Source Developer, Noriyuki Miyazaki"
 #define CERTNAME_JMS586_20			L"Open Source Developer, Noriyuki Miyazaki"
 #define CERTNAME_JMS586_40			L"Open Source Developer, Noriyuki Miyazaki"
+#define CERTNAME_JMS59X				L"CrystalMark Inc."
 
 #define URL_AMD_RC2T7_JA			L"https://thilmera.com/project/AMD_RC2t7/?lang=ja"
 #define URL_AMD_RC2T7_EN 			L"https://thilmera.com/project/AMD_RC2t7/?lang=en"

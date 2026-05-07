@@ -22,6 +22,7 @@
 #include "EditFx.h"
 #include "ListCtrlFx.h"
 #include "OsInfoFx.h"
+#include "DarkMode.h"
 
 // #include "ImageToast.h"
 
@@ -635,6 +636,7 @@ public:
 	afx_msg void OnUsbJMB39X();
 	afx_msg void OnUsbJMS586_20();
 	afx_msg void OnUsbJMS586_40();
+	afx_msg void OnUsbJMS59X();
 #endif
 	afx_msg void OnHealthStatus();
 	afx_msg void OnSoundSetting();

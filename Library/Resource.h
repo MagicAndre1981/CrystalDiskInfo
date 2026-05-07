@@ -1033,9 +1033,10 @@
 #define ID_INTEL_VROC                   33141
 #define ID_USB_JMS586_20                33142
 #define ID_USB_JMS586_40                33143
-#define ID_STARTUP_VOICE                33144
-#define ID_USB_REALTEK9220DP            33145
-#define ID_HIDE_RAID_VOLUME             33146
+#define ID_USB_JMS59X                   33144
+#define ID_STARTUP_VOICE                33145
+#define ID_USB_REALTEK9220DP            33146
+#define ID_HIDE_RAID_VOLUME             33147
 
 #define ID_DRIVE_MENU_8                 33150
 #define ID_DRIVE_MENU_10                33151

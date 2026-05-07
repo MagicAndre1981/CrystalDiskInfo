@@ -24,7 +24,7 @@
 #define new DEBUG_NEW
 #endif
 
-GdiplusStartupInput gdiplusStartupInput;
+// GdiplusStartupInput gdiplusStartupInput;
 
 // CDiskInfoApp
 
@@ -42,7 +42,7 @@ CDiskInfoApp::CDiskInfoApp()
 
 CDiskInfoApp::~CDiskInfoApp()
 {
-	GdiplusShutdown(gdiplusToken);
+//	GdiplusShutdown(gdiplusToken);
 	safeCloseHandle(hMutex);
 }
 
@@ -70,7 +70,7 @@ BOOL CDiskInfoApp::InitInstance()
 	InitCommonControlsEx(&InitCtrls);
 	CWinApp::InitInstance();
 
-	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+//	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 	// for WMI error
 	SetErrorMode(SEM_FAILCRITICALERRORS);

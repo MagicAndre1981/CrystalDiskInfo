@@ -52,6 +52,7 @@ static const TCHAR* commandTypeString[] =
 	_T("j3"), // JMB39X
 	_T("j6"), // JMS586_20
 	_T("j4"), // JMS586_40
+	_T("j9"), // JMS59X
 	_T("dg"), // Debug
 };
 
@@ -368,6 +369,7 @@ public:
 		CMD_TYPE_JMB39X,
 		CMD_TYPE_JMS586_20,
 		CMD_TYPE_JMS586_40,
+		CMD_TYPE_JMS59X,
 		CMD_TYPE_DEBUG
 	};
 
@@ -1980,6 +1982,7 @@ public:
 	BOOL FlagUsbJMB39X = FALSE;
 	BOOL FlagUsbJMS586_20 = FALSE;
 	BOOL FlagUsbJMS586_40 = FALSE;
+	BOOL FlagUsbJMS59X = FALSE;
 #endif
 	BOOL FlagNoWakeUp = FALSE;// +M 20211216
 
@@ -1993,6 +1996,8 @@ protected:
 	HMODULE hJMB39X{};
 	HMODULE hJMS586_20{};
 	HMODULE hJMS586_40{};
+	HMODULE hJMS59X{};
+
 	// 2023/02/24 Compatible with SIV
 	HANDLE hMutexJMicron{};
 	HANDLE CreateWorldMutex(CONST TCHAR* name);
@@ -2134,6 +2139,10 @@ protected:
 	BOOL GetSmartAttributeNVMeJMS586_40(BYTE index, BYTE port, ATA_SMART_INFO* asi);
 	BOOL GetNVMeIdInfoJMS586_40(BYTE index, BYTE port, NVME_ID* nvmeId);
 	BOOL ControllerSerialNum2IdJMS586_40(BYTE csn, BYTE* cid);
+
+	BOOL AddDiskJMS59X(INT index);
+	BOOL DoIdentifyDeviceJMS59X(INT index, BYTE port, IDENTIFY_DEVICE* identify);
+	BOOL GetSmartInfoJMS59X(INT index, BYTE port, ATA_SMART_INFO* asi);
 #endif
 
 	DWORD GetTransferMode(WORD w63, WORD w76, WORD w77, WORD w88, CString &currentTransferMode, CString &maxTransferMode, CString &Interface, INTERFACE_TYPE *interfaceType);

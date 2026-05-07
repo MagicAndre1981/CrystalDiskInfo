@@ -917,8 +917,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 9, 8, 0, 0
- PRODUCTVERSION 9, 8, 0, 0
+ FILEVERSION 9, 9, 0, 0
+ PRODUCTVERSION 9, 9, 0, 0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -935,8 +935,8 @@ BEGIN
         BEGIN
             VALUE "Comments", "https://crystalmark.info/"
             VALUE "CompanyName", "Crystal Dew World"
-            VALUE "FileVersion", "9.8.0.0"
-            VALUE "ProductVersion", "9.8.0.0"
+            VALUE "FileVersion", "9.9.0.0"
+            VALUE "ProductVersion", "9.9.0.0"
             VALUE "OriginalFilename", "DiskInfo.exe"
             VALUE "InternalName", "DiskInfo.exe"
 
@@ -1220,6 +1220,7 @@ BEGIN
                 MENUITEM "JMicron JMB39X",              ID_USB_JMB39X
                 MENUITEM "JMicron JMS586 (Model 20bytes/Beta)",            ID_USB_JMS586_20
                 MENUITEM "JMicron JMS586 (Model 40bytes/NewFW/Beta)",      ID_USB_JMS586_40
+                MENUITEM "JMicron JMS59X",              ID_USB_JMS59X
 #endif 
                 MENUITEM "USB Memory (SAT)",            ID_USB_MEMORY
 //                MENUITEM "SCSI_ATA_TRANSLATION_16BYTE (Samsung SATA SSD Life)",   ID_USB_SAT16
