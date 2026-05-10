@@ -44,6 +44,7 @@ static const TCHAR* commandTypeString[] =
 	_T("nj"), // NVMe JMicron
 	_T("na"), // NVMe ASMedia
 	_T("nr"), // NVMe Realtek
+	_T("n9"), // NVMe Realtek9220DP
 	_T("nt"), // NVMe Intel RST
 	_T("iv"), // NVMe Intel VROC
 	_T("mr"), // MegaRAID SAS
@@ -342,17 +343,17 @@ public:
 		CMD_TYPE_PHYSICAL_DRIVE,
 		CMD_TYPE_SCSI_MINIPORT,
 		CMD_TYPE_SILICON_IMAGE,
-		CMD_TYPE_SAT,			// SAT = SCSI_ATA_TRANSLATION
+		CMD_TYPE_SAT,					// SAT = SCSI_ATA_TRANSLATION
 		CMD_TYPE_SUNPLUS,
 		CMD_TYPE_IO_DATA,
 		CMD_TYPE_LOGITEC,
 		CMD_TYPE_PROLIFIC,
 		CMD_TYPE_JMICRON,
 		CMD_TYPE_CYPRESS,
-		CMD_TYPE_SAT_ASM1352R,	// AMS1352 2nd drive
+		CMD_TYPE_SAT_ASM1352R,			// AMS1352 2nd drive
 		CMD_TYPE_SAT_REALTEK9220DP,
-		CMD_TYPE_CSMI,				// CSMI = Common Storage Management Interface
-		CMD_TYPE_CSMI_PHYSICAL_DRIVE, // CSMI = Common Storage Management Interface 
+		CMD_TYPE_CSMI,					// CSMI = Common Storage Management Interface
+		CMD_TYPE_CSMI_PHYSICAL_DRIVE,	// CSMI = Common Storage Management Interface 
 		CMD_TYPE_WMI,
 		CMD_TYPE_NVME_SAMSUNG,
 		CMD_TYPE_NVME_INTEL,
@@ -364,7 +365,7 @@ public:
 		CMD_TYPE_NVME_INTEL_RST,
 		CMD_TYPE_NVME_INTEL_VROC,
 		CMD_TYPE_MEGARAID,
-		CMD_TYPE_AMD_RC2,// +AMD_RC2
+		CMD_TYPE_AMD_RC2,				// +AMD_RC2
 		CMD_TYPE_JMS56X,
 		CMD_TYPE_JMB39X,
 		CMD_TYPE_JMS586_20,
@@ -397,7 +398,7 @@ public:
 	//	INTERFACE_TYPE_UASP,
 		INTERFACE_TYPE_SCSI, 
 		INTERFACE_TYPE_NVME,
-		INTERFACE_TYPE_AMD_RC2,// +AMD_RC2
+		INTERFACE_TYPE_AMD_RC2,			// +AMD_RC2
 	//	INTERFACE_TYPE_USB_NVME,
 	};
 

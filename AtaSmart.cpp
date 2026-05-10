@@ -2496,6 +2496,31 @@ VOID CAtaSmart::Init(BOOL useWmi, BOOL advancedDiskSearch, PBOOL flagChangeDisk,
 		DebugPrint(_T("Sort by PhysicalDriveId"));
 		qsort(p, vars.GetCount(), sizeof(ATA_SMART_INFO), ComparePhysicalDriveId);
 	}
+
+	// Fake Check
+	{
+		int count = (int)vars.GetCount();
+
+		for (int i = 0; i < count; i++)
+		{
+			BOOL flagFake = FALSE;
+			CString model;
+			model = vars[i].Model;
+			model.MakeUpper();
+
+			/// DEBUG vars[i].FirmwareRev = L"8888888";
+
+			/// Fake Samsung SSD 990 Pro https://akiba-pc.watch.impress.co.jp/docs/topic/special/2093885.html (ja)
+			if (model.Find(_T("SAMSUNG SSD 990 PRO")) >= 0 && vars[i].FirmwareRev.Find(_T("8888888")) == 0) { flagFake = TRUE; }
+			/// PCI Vendor ID for Samsung = 0x144D
+			if (model.Find(_T("SAMSUNG")) >= 0 && vars[i].IdentifyDevice.B.Bin[0] != 0x4D && vars[i].IdentifyDevice.B.Bin[1] != 0x14) { flagFake = TRUE; }
+
+			if (flagFake)
+			{
+				vars[i].Model = _T("[FAKE] ") + vars[i].Model;
+			}
+		}
+	}
 }
 
 int CAtaSmart::CompareDriveLetter(const void *p1, const void *p2)
@@ -4796,7 +4821,7 @@ VOID CAtaSmart::CheckSsdSupport(ATA_SMART_INFO &asi)
 			}
 			break;
 		case 0xAD:
-			if (asi.DiskVendorId == SSD_VENDOR_TOSHIBA || asi.DiskVendorId == SSD_VENDOR_KIOXIA)
+			if (asi.DiskVendorId == SSD_VENDOR_KIOXIA)
 			{
 				asi.Life = asi.Attribute[j].CurrentValue - 100;
 				if (asi.Life <= 0 || asi.Life > 100) { asi.Life = -1; }
@@ -4969,15 +4994,23 @@ INT CAtaSmart::CheckPlextorNandWritesUnit(ATA_SMART_INFO &asi)
 
 BOOL CAtaSmart::IsSsdOld(ATA_SMART_INFO &asi)
 {
-	return asi.Model.Find(_T("OCZ")) == 0 
-		|| asi.Model.Find(_T("SPCC")) == 0
-		|| asi.Model.Find(_T("PATRIOT")) == 0
-		|| asi.Model.Find(_T("Solid")) >= 0
-		|| asi.Model.Find(_T("SSD")) >= 0
-		|| asi.Model.Find(_T("SiliconHardDisk")) >= 0
-		|| asi.Model.Find(_T("PHOTOFAST")) == 0
-		|| asi.Model.Find(_T("STT_FTM")) == 0
-		|| asi.Model.Find(_T("Super Talent")) == 0
+	CString model = asi.Model;
+	model.MakeUpper();
+
+	return model.Find(_T("OCZ")) == 0
+		|| model.Find(_T("SPCC")) == 0
+		|| model.Find(_T("PATRIOT")) == 0
+		|| model.Find(_T("SOLID")) >= 0
+		|| model.Find(_T("SSD")) >= 0
+		|| model.Find(_T("SILICONHARDDISK")) >= 0
+		|| model.Find(_T("PHOTOFAST")) == 0
+		|| model.Find(_T("STT_FTM")) == 0
+		|| model.Find(_T("SUPER TALENT")) == 0
+		|| model.Find(_T("SANDFORCE")) == 0
+		|| model.Find(_T("HANYE")) == 0
+		|| model.Find(_T("INTEL")) == 0
+		|| model.Find(_T("TOSHIBA THNS")) == 0
+		|| model.Find(_T("CSSD")) == 0 // TOSHIBA CFD
 		;
 }
 
@@ -12209,7 +12242,7 @@ BOOL CAtaSmart::FillSmartData(ATA_SMART_INFO* asi)
 				}
 				break;
 			case 0xAD:
-				if (asi->DiskVendorId == SSD_VENDOR_TOSHIBA || asi->DiskVendorId == SSD_VENDOR_KIOXIA)
+				if (asi->DiskVendorId == SSD_VENDOR_KIOXIA)
 				{
 					asi->Life = asi->Attribute[j].CurrentValue - 100;
 					if (asi->Life < 0 || asi->Life > 100) { asi->Life = -1; }
