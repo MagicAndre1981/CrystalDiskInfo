@@ -2513,12 +2513,12 @@ VOID CAtaSmart::Init(BOOL useWmi, BOOL advancedDiskSearch, PBOOL flagChangeDisk,
 			/// Fake Samsung SSD 990 Pro https://akiba-pc.watch.impress.co.jp/docs/topic/special/2093885.html (ja)
 			if (model.Find(_T("SAMSUNG SSD 990 PRO")) >= 0 && vars[i].FirmwareRev.Find(_T("8888888")) == 0) { flagFake = TRUE; }
 			
-			/// JMicron USB RAID does not support
-			if (vars[i].CommandType != CMD_TYPE_JMS586_20 && vars[i].CommandType != CMD_TYPE_JMS586_40)
+			/// JMicron JMS586 USB RAID does not support PCIeVID
+			if (vars[i].CommandType != CMD_TYPE_JMS586_20)
 			{
 				/// PCI Vendor ID for Samsung = 0x144D
-				if (model.Find(_T("SAMSUNG")) >= 0 && vars[i].IdentifyDevice.B.Bin[0] != 0x4D && vars[i].IdentifyDevice.B.Bin[1] != 0x14) { flagFake = TRUE; }
-			}			
+				if (model.Find(_T("SAMSUNG")) >= 0 && vars[i].IdentifyDevice.N.PCIeVID != 0x144D) { flagFake = TRUE; }
+			}
 
 			if (flagFake)
 			{
@@ -3964,8 +3964,8 @@ BOOL CAtaSmart::AddDiskNVMe(INT physicalDriveId, INT scsiPort, INT scsiTargetId,
 		asi.SerialNumber.TrimRight();
 		asi.TotalDiskSize = (((DWORD64)nvmePort40->Capacity << 32) + (DWORD64)nvmePort40->CapacityOffset) * (DWORD64)nvmePort40->SectorSize / 1000 / 1000;
 
-		memcpy_s(asi.IdentifyDevice.N.PCIeVID, sizeof(asi.IdentifyDevice.N.PCIeVID), (const void*)nvmeId->PCIeVID, 2);
-		memcpy_s(asi.IdentifyDevice.N.PCIeSubSysVID, sizeof(asi.IdentifyDevice.N.PCIeSubSysVID), (const void*)nvmeId->PCIeSubSysVID, 2);
+		asi.IdentifyDevice.N.PCIeVID = nvmeId->PCIeVID;
+		asi.IdentifyDevice.N.PCIeSubSysVID = nvmeId->PCIeSubSysVID;
 		memcpy_s(asi.IdentifyDevice.N.Model, sizeof(asi.IdentifyDevice.N.Model), nvmePort40->ModelName, 40);
 		memcpy_s(asi.IdentifyDevice.N.SerialNumber, sizeof(asi.IdentifyDevice.N.SerialNumber), nvmePort40->SerialNumber, 20);
 		memcpy_s(asi.IdentifyDevice.N.FirmwareRev, sizeof(asi.IdentifyDevice.N.FirmwareRev), nvmeId->FirmwareRevision, 8);
