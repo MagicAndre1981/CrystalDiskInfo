@@ -2508,21 +2508,24 @@ VOID CAtaSmart::Init(BOOL useWmi, BOOL advancedDiskSearch, PBOOL flagChangeDisk,
 			model = vars[i].Model;
 			model.MakeUpper();
 
-			/// DEBUG vars[i].FirmwareRev = L"8888888";
-
-			/// Fake Samsung SSD 990 Pro https://akiba-pc.watch.impress.co.jp/docs/topic/special/2093885.html (ja)
-			if (model.Find(_T("SAMSUNG SSD 990 PRO")) >= 0 && vars[i].FirmwareRev.Find(_T("8888888")) == 0) { flagFake = TRUE; }
-			
-			/// JMicron JMS586 USB RAID does not support PCIeVID
-			if (vars[i].CommandType != CMD_TYPE_JMS586_20)
+			if (vars[i].IsNVMe)
 			{
-				/// PCI Vendor ID for Samsung = 0x144D
-				if (model.Find(_T("SAMSUNG")) >= 0 && vars[i].IdentifyDevice.N.PCIeVID != 0x144D) { flagFake = TRUE; }
-			}
+				/// DEBUG vars[i].FirmwareRev = L"8888888";
 
-			if (flagFake)
-			{
-				vars[i].Model = _T("[FAKE] ") + vars[i].Model;
+				/// Fake Samsung SSD 990 Pro https://akiba-pc.watch.impress.co.jp/docs/topic/special/2093885.html (ja)
+				if (model.Find(_T("SAMSUNG SSD 990 PRO")) >= 0 && vars[i].FirmwareRev.Find(_T("8888888")) == 0) { flagFake = TRUE; }
+
+				/// JMicron JMS586 USB RAID does not support PCIeVID
+				if (vars[i].CommandType != CMD_TYPE_JMS586_20)
+				{
+					/// PCI Vendor ID for Samsung = 0x144D
+					if (model.Find(_T("SAMSUNG")) >= 0 && vars[i].IdentifyDevice.N.PCIeVID != 0x144D) { flagFake = TRUE; }
+				}
+
+				if (flagFake)
+				{
+					vars[i].Model = _T("[FAKE] ") + vars[i].Model;
+				}
 			}
 		}
 	}
